@@ -29,11 +29,26 @@ const AdminDashboard = () => {
             <span>Home</span>
           </Link>
           <Link
-            to="/admin-dashboard/users"
+            to="/admin-dashboard/clients"
             className="flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-700 transition transform hover:scale-105"
           >
             <AiOutlineUser className="text-xl" />
-            <span>Manage Users</span>
+            <span>Manage Clients</span>
+          </Link>
+          <Link
+            to="/admin-dashboard/agents"
+            className="flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-700 transition transform hover:scale-105"
+          >
+            <AiOutlineUser className="text-xl" />
+            <span>Manage Agents</span>
+            
+          </Link>
+          <Link
+            to="/admin-dashboard/teams"
+            className="flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-700 transition transform hover:scale-105"
+          >
+            <AiOutlineUser className="text-xl" />
+            <span>Support Teams</span>
           </Link>
           <Link
             to="/admin-dashboard/settings"
@@ -108,9 +123,11 @@ const AdminDashboard = () => {
         <main className="p-6 bg-gray-50 min-h-[calc(100vh-80px)]">
           <Routes>
             <Route path="/" element={<h2>Admin Home</h2>} />
-            <Route path="users" element={<h2>Manage Users</h2>} />
+            <Route path="clients" element={<h2>Manage Clients</h2>} />
+            <Route path="agents" element={<h2>Manage Agents</h2>} />
             <Route path="settings" element={<h2>Settings</h2>} />
             <Route path="reports" element={<h2>Reports</h2>} />
+            <Route path="teams" element={<h2>Teams</h2>}/>
             <Route path="*" element={<h2>Page not found</h2>} />
           </Routes>
         </main>
