@@ -14,7 +14,7 @@ function App() {
         <Routes>
           {/* Home Route */}
           {/* Uncomment the following line if you want to include the Home route */}
-          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<Home />} />
 
           {/* Client Dashboard Route */}
           <Route path='/client-dashboard/*' element={<ClientDashboard />} />
@@ -26,10 +26,10 @@ function App() {
             <Route path='/admin-dashboard/*' element={<AdminDashboard />} />
           
           {/* Sign Up Route */}
-          {/* <Route path="/signup" element={<SignUp />} /> */}
+          <Route path="/signup" element={<SignUp />} />
 
           {/* Login Route */}
-          {/* <Route path="/login" element={<Login />} />           */}
+          <Route path="/login" element={<Login />} />          
         </Routes>
       </div>
   );

@@ -7,7 +7,7 @@ const ticketSchema = new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:['open','in-process','hold','escalated','closed','solved','cancelled','re-opened']
+        enum:['open','in-process','hold','escalated','closed','solved']
     },
     priority:{
         type:String,
@@ -53,3 +53,6 @@ const ticketSchema = new mongoose.Schema({
         required:true,
     }
 })
+
+const Ticket = mongoose.model('Ticket',ticketSchema);
+module.exports = Ticket;

@@ -1,39 +1,80 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 
 const SignUp = () => {
   const [role, setRole] = useState('client'); // State to toggle between client and support agent
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    companyName: '',
-    department: '', // New field for Support Agent
-    team: '', // New field for team assignment
-    isTeamLeader: false // Field for Team Leader status
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
-  };
+  // Initialize the form hook
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  const onSubmit = async (data) => {
     setLoading(true);
     setError('');
 
-    // Simulate form submission process
-    setTimeout(() => {
+    // Password mismatch check
+    if (data.password !== data.confirmPassword) {
+      setError('Passwords do not match');
       setLoading(false);
-      alert(`${role.charAt(0).toUpperCase() + role.slice(1)} account created successfully`);
-    }, 2000);
+      return;
+    }
+
+    try {
+      const payload = role === 'client'
+        ? {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            password: data.password,
+            confirmPassword: data.confirmPassword,
+          }
+        : {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            password: data.password,
+            confirmPassword: data.confirmPassword,
+            companyName: data.companyName,
+            department: data.department,
+          };
+
+      const endpoint = role === 'client'
+        ? 'http://localhost:3000/api/v1/createclient'
+        : 'http://localhost:3000/api/v1/createagent';
+
+      const response = await axios.post(endpoint, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log("Response",response,"Response datt :",response.data);
+
+      // Check for successful registration
+      if (response.data.status) {
+        // Show success toast with the message from the response
+        toast.success(response.data.message || 'Registration successful!', {
+          icon: '🎉',
+        });
+        reset(); // Reset the form after successful registration
+      } else {
+        // If the API doesn't return success, show the error message from the response
+        setError(response.data.message || 'Failed to create account, please try again.');
+      }
+    } catch (err) {
+      // Generic error message if something goes wrong with the request
+      setError('Something went wrong, please try again.');
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -59,65 +100,78 @@ const SignUp = () => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Input */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* First Name Input */}
           <div>
-            <label className="block text-slate-700 font-semibold mb-2" htmlFor="name">Name</label>
+            <label className="block text-slate-700 font-semibold mb-2" htmlFor="firstName">
+              First Name
+            </label>
             <input
-              id="name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
+              id="firstName"
+              {...register('firstName', { required: 'First name is required' })}
               className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
-              placeholder="Enter your name"
-              required
+              placeholder="Enter your first name"
             />
+            {errors.firstName && <p className="text-red-600">{errors.firstName.message}</p>}
+          </div>
+
+          {/* Last Name Input */}
+          <div>
+            <label className="block text-slate-700 font-semibold mb-2" htmlFor="lastName">
+              Last Name
+            </label>
+            <input
+              id="lastName"
+              {...register('lastName', { required: 'Last name is required' })}
+              className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
+              placeholder="Enter your last name"
+            />
+            {errors.lastName && <p className="text-red-600">{errors.lastName.message}</p>}
           </div>
 
           {/* Email Input */}
           <div>
-            <label className="block text-slate-700 font-semibold mb-2" htmlFor="email">Email</label>
+            <label className="block text-slate-700 font-semibold mb-2" htmlFor="email">
+              Email
+            </label>
             <input
               id="email"
               type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+              {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email address' } })}
               className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
               placeholder="Enter your email"
-              required
             />
+            {errors.email && <p className="text-red-600">{errors.email.message}</p>}
           </div>
 
           {/* Password Input */}
           <div>
-            <label className="block text-slate-700 font-semibold mb-2" htmlFor="password">Password</label>
+            <label className="block text-slate-700 font-semibold mb-2" htmlFor="password">
+              Password
+            </label>
             <input
               id="password"
               type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
+              {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
               className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
               placeholder="Enter your password"
-              required
             />
+            {errors.password && <p className="text-red-600">{errors.password.message}</p>}
           </div>
 
           {/* Confirm Password Input */}
           <div>
-            <label className="block text-slate-700 font-semibold mb-2" htmlFor="confirmPassword">Confirm Password</label>
+            <label className="block text-slate-700 font-semibold mb-2" htmlFor="confirmPassword">
+              Confirm Password
+            </label>
             <input
               id="confirmPassword"
               type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
+              {...register('confirmPassword', { required: 'Please confirm your password' })}
               className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
               placeholder="Confirm your password"
-              required
             />
+            {errors.confirmPassword && <p className="text-red-600">{errors.confirmPassword.message}</p>}
           </div>
 
           {/* Additional Fields for Support Agent */}
@@ -125,81 +179,45 @@ const SignUp = () => {
             <>
               {/* Company Name */}
               <div>
-                <label className="block text-slate-700 font-semibold mb-2" htmlFor="companyName">Company Name</label>
+                <label className="block text-slate-700 font-semibold mb-2" htmlFor="companyName">
+                  Company Name
+                </label>
                 <input
                   id="companyName"
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
+                  {...register('companyName', { required: 'Company name is required for agents' })}
                   className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
                   placeholder="Enter your company name"
                 />
+                {errors.companyName && <p className="text-red-600">{errors.companyName.message}</p>}
               </div>
 
               {/* Department */}
               <div>
-                <label className="block text-slate-700 font-semibold mb-2" htmlFor="department">Department</label>
+                <label className="block text-slate-700 font-semibold mb-2" htmlFor="department">
+                  Department
+                </label>
                 <input
                   id="department"
-                  type="text"
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
+                  {...register('department', { required: 'Department is required for agents' })}
                   className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
                   placeholder="Enter your department"
-                  required
                 />
-              </div>
-
-              {/* Team Assignment */}
-              {/* <div>
-                <label className="block text-slate-700 font-semibold mb-2" htmlFor="team">Assign Team</label>
-                <input
-                  id="team"
-                  type="text"
-                  name="team"
-                  value={formData.team}
-                  onChange={handleChange}
-                  className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
-                  placeholder="Enter your team name"
-                  required
-                />
-              </div> */}
-
-              {/* Team Leader Checkbox */}
-              <div className="flex items-center space-x-2">
-                <input
-                  id="isTeamLeader"
-                  type="checkbox"
-                  name="isTeamLeader"
-                  checked={formData.isTeamLeader}
-                  onChange={handleChange}
-                  className="w-4 h-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
-                />
-                <label htmlFor="isTeamLeader" className="text-slate-700 font-semibold">Are you the Team Leader?</label>
+                {errors.department && <p className="text-red-600">{errors.department.message}</p>}
               </div>
             </>
           )}
 
-          {/* Error Message */}
-          {error && <p className="text-red-600 font-semibold">{error}</p>}
+          {/* Error Display */}
+          {error && <p className="text-red-600 text-center mt-4">{error}</p>}
 
           {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="w-full h-12 bg-cyan-700 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-4 focus:ring-cyan-600 focus:ring-offset-2 transition-all transform hover:scale-105"
               disabled={loading}
+              className="w-full bg-cyan-600 text-white py-4 rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-cyan-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span className="ml-2">Creating Account...</span>
-                </div>
-              ) : (
-                'Sign Up'
-              )}
+              {loading ? 'Signing up...' : 'Sign Up'}
             </button>
           </div>
         </form>

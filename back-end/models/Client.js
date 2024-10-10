@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const clientSchema = new mongoose.Schema({
-    name:{
+    firstName:{
+        type:String,
+        required:true,
+    },
+    lastName:{
         type:String,
         required:true,
     },
@@ -21,7 +25,7 @@ const clientSchema = new mongoose.Schema({
     },
     gender:{
         type:String,
-        enum:[male,female,other],
+        enum:['male','female','other'],
     },
     dateOfBirth:{
         type:Date,
