@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const agentSchema = new mongoose.Schema({
-    name:{
+    firstName:{
+        type:String,
+        required:true,
+    },
+    lastName:{
         type:String,
         required:true,
     },
@@ -11,6 +15,11 @@ const agentSchema = new mongoose.Schema({
         trim:true,
     },
     password:{
+        type:String,
+        required:true,
+        trim:true,
+    },
+    role:{
         type:String,
         required:true,
         trim:true,
@@ -30,13 +39,13 @@ const agentSchema = new mongoose.Schema({
         type:String,
         trim:true,
     },
-    role:{
+    position:{
         type:String,
         enum:['senior','junior'],
     },
     agentId:{
         type:Number,
-        required:true,
+      
     },
     shift:{
         type:String,
@@ -47,7 +56,6 @@ const agentSchema = new mongoose.Schema({
     },
     employeeId:{
         type:String,
-        required:true,
     },
     issueTickets:{
         type:mongoose.Schema.Types.ObjectId,

@@ -44,24 +44,9 @@ const Home = () => {
           </button>
           </Link>
 
-          {/* Client Login Button */}
-          <Link to='/login'>
-          <button
-            className="relative w-48 h-14 bg-white text-slate-800 border-2 border-cyan-700 rounded-full shadow-lg hover:bg-sky-200 hover:border-sky-200 transform transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-700 focus:ring-offset-2"
-            aria-label="Login as Client"
-            onClick={handleButtonClick}
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-6 h-6 border-4 border-cyan-700 border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : (
-              'Client Login'
-            )}
-          </button>
-          </Link>
+        
 
-          {/* Support-Agent Login Button */}
+          {/* Login Button */}
           <Link to='/login'>
             <button
             className="relative w-48 h-14 bg-slate-800 text-white rounded-full shadow-lg hover:bg-slate-700 transform transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:ring-offset-2"
@@ -73,7 +58,7 @@ const Home = () => {
                 <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : (
-              'Support-Agent Login'
+              'Login'
             )}
           </button>
 

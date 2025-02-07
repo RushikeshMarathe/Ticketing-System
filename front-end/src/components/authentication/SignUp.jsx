@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
-  const [role, setRole] = useState('client'); // State to toggle between client and support agent
+  const [signUpRole, setSignUpRole] = useState('client'); // State to toggle between client and support agent
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Initialize the form hook
   const {
@@ -19,6 +21,7 @@ const SignUp = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     setError('');
+    console.log("role : ",signUpRole);
 
     // Password mismatch check
     if (data.password !== data.confirmPassword) {
@@ -28,27 +31,20 @@ const SignUp = () => {
     }
 
     try {
-      const payload = role === 'client'
-        ? {
+      const payload = 
+      {
             firstName: data.firstName,
             lastName: data.lastName,
             email: data.email,
             password: data.password,
             confirmPassword: data.confirmPassword,
-          }
-        : {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            password: data.password,
-            confirmPassword: data.confirmPassword,
-            companyName: data.companyName,
-            department: data.department,
-          };
+            role:signUpRole,
+      }
+          
 
-      const endpoint = role === 'client'
-        ? 'http://localhost:3000/api/v1/createclient'
-        : 'http://localhost:3000/api/v1/createagent';
+      const endpoint = signUpRole === 'client'
+        ? 'http://localhost:3000/api/v1/createClient'
+        : 'http://localhost:3000/api/v1/createAgent';
 
       const response = await axios.post(endpoint, payload, {
         headers: {
@@ -65,6 +61,7 @@ const SignUp = () => {
           icon: '🎉',
         });
         reset(); // Reset the form after successful registration
+        navigate('/login');
       } else {
         // If the API doesn't return success, show the error message from the response
         setError(response.data.message || 'Failed to create account, please try again.');
@@ -81,20 +78,20 @@ const SignUp = () => {
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-sky-100 to-cyan-100 p-6">
       <div className="bg-white shadow-lg rounded-lg max-w-lg w-full p-10 transform transition-transform hover:scale-105">
         <h1 className="text-4xl font-bold text-slate-800 mb-8 text-center">
-          {role === 'client' ? 'Client Sign Up' : 'Support Agent Sign Up'}
+          {signUpRole === 'client' ? 'Client Sign Up' : 'Support Agent Sign Up'}
         </h1>
 
         {/* Role Toggle */}
         <div className="flex justify-center space-x-4 mb-8">
           <button
-            className={`py-2 px-6 font-semibold rounded-full transition-all ${role === 'client' ? 'bg-cyan-700 text-white' : 'bg-slate-200 text-slate-800 hover:bg-cyan-100'}`}
-            onClick={() => setRole('client')}
+            className={`py-2 px-6 font-semibold rounded-full transition-all ${signUpRole === 'client' ? 'bg-cyan-700 text-white' : 'bg-slate-200 text-slate-800 hover:bg-cyan-100'}`}
+            onClick={() => setSignUpRole('client')}
           >
             Client Sign Up
           </button>
           <button
-            className={`py-2 px-6 font-semibold rounded-full transition-all ${role === 'support' ? 'bg-cyan-700 text-white' : 'bg-slate-200 text-slate-800 hover:bg-cyan-100'}`}
-            onClick={() => setRole('support')}
+            className={`py-2 px-6 font-semibold rounded-full transition-all ${signUpRole === 'support' ? 'bg-cyan-700 text-white' : 'bg-slate-200 text-slate-800 hover:bg-cyan-100'}`}
+            onClick={() => setSignUpRole('support')}
           >
             Support Agent Sign Up
           </button>
@@ -174,38 +171,7 @@ const SignUp = () => {
             {errors.confirmPassword && <p className="text-red-600">{errors.confirmPassword.message}</p>}
           </div>
 
-          {/* Additional Fields for Support Agent */}
-          {role === 'support' && (
-            <>
-              {/* Company Name */}
-              <div>
-                <label className="block text-slate-700 font-semibold mb-2" htmlFor="companyName">
-                  Company Name
-                </label>
-                <input
-                  id="companyName"
-                  {...register('companyName', { required: 'Company name is required for agents' })}
-                  className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
-                  placeholder="Enter your company name"
-                />
-                {errors.companyName && <p className="text-red-600">{errors.companyName.message}</p>}
-              </div>
-
-              {/* Department */}
-              <div>
-                <label className="block text-slate-700 font-semibold mb-2" htmlFor="department">
-                  Department
-                </label>
-                <input
-                  id="department"
-                  {...register('department', { required: 'Department is required for agents' })}
-                  className="w-full p-4 bg-sky-50 border border-slate-300 rounded-lg focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600 transition"
-                  placeholder="Enter your department"
-                />
-                {errors.department && <p className="text-red-600">{errors.department.message}</p>}
-              </div>
-            </>
-          )}
+         
 
           {/* Error Display */}
           {error && <p className="text-red-600 text-center mt-4">{error}</p>}

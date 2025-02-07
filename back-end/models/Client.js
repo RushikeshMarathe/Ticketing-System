@@ -19,6 +19,11 @@ const clientSchema = new mongoose.Schema({
         required:true,
         trim:true,
     },
+    role:{
+        type:String,
+        required:true,
+        trim:true,
+    },
     phoneNo:{
         type:String,
         trim:true
@@ -33,6 +38,9 @@ const clientSchema = new mongoose.Schema({
     city:{
         type:String,
         trim:true,
+    },
+    about:{
+        type:String,
     },
     ticketsCreated:{
         type:mongoose.Schema.Types.ObjectId,

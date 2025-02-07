@@ -1,57 +1,94 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setToken,setLoading, setUser, setRole } from '../../slices/authSlice';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
 
 const Login = () => {
-  const [role, setRole] = useState('client'); // Toggle between 'client' and 'agent'
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [error, setError] = useState('');
-
+  const { BASE_URL,loading } = useSelector((state) => state.auth);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  
+ 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    dispatch(setLoading(true));
+    setError(''); // Clear previous error messages
+  
+    try {
+      // Ensure the environment variable is accessed correctly
+      if (!BASE_URL) {
+        throw new Error("BASE_URL is not defined in the environment variables.");
+      }
+  
+      // Debug log for BASE_URL
+      console.log("BASE_URL:", BASE_URL);
+  
+      // Make the API request
+      const response = await axios.post(
+        `${BASE_URL}login`,
+        formData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+  
+      const responseData = response.data;
+  
+      if (responseData.success) {
+        console.log('Log In successful:', responseData.message);
+  
+        // Notify user about successful login
+        toast.success("Logged in Successfully!..", {
+          icon: '👏', // Built-in emoji icon
+        });
+  
+        // Save the token to localStorage and Redux
+        localStorage.setItem('token', responseData.token);
+        dispatch(setToken(responseData.token));
+        dispatch(setUser(responseData.user)); 
+        // console.log("response :",responseData.user.role);
+        dispatch(setRole(responseData.user.role));
+        navigate('/');
 
-    // Simulate form submission process
-    setTimeout(() => {
-      setLoading(false);
-      alert(`${role === 'client' ? 'Client' : 'Support Agent'} logged in successfully`);
-    }, 2000);
+        
+      } else {
+        console.error('Log In failed:', responseData.message);
+        toast.error('Log In failed: ' + responseData.message);
+      }
+    } catch (error) {
+      console.error('Error during Log In:', error.response ? error.response.data.message : error.message);
+      toast.error('An error occurred during Log In: ' + (error.response ? error.response.data.message : error.message));
+    } finally {
+      // Always stop loading spinner
+      dispatch(setLoading(false));
+    }
+
+
+    
   };
+  
 
   return (
     <div className="bg-sky-100 min-h-screen flex flex-col justify-center items-center p-4">
       <div className="bg-white shadow-lg rounded-lg w-full max-w-sm sm:max-w-md md:max-w-lg p-6 sm:p-8 lg:p-10">
         <h1 className="text-3xl font-bold text-slate-800 mb-6 text-center">
-          {role === 'client' ? 'Client Login' : 'Support Agent Login'}
         </h1>
 
-        {/* Toggle buttons */}
-        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
-          <button
-            className={`w-full sm:w-auto h-12 px-4 rounded-lg font-semibold text-white transition-all ${
-              role === 'client' ? 'bg-cyan-700' : 'bg-slate-400 hover:bg-slate-500'
-            }`}
-            onClick={() => setRole('client')}
-          >
-            Client Login
-          </button>
-          <button
-            className={`w-full sm:w-auto h-12 px-4 rounded-lg font-semibold text-white transition-all ${
-              role === 'agent' ? 'bg-cyan-700' : 'bg-slate-400 hover:bg-slate-500'
-            }`}
-            onClick={() => setRole('agent')}
-          >
-            Support Agent Login
-          </button>
-        </div>
+      
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
